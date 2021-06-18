@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="ExternalProjectImportWizard">
+		<item key="WizardProjectsImportPage.STORE_ARCHIVE_SELECTED" value="true"/>
+		<item key="WizardProjectsImportPage.STORE_CLOSE_CREATED_PROJECTS_ID" value="false"/>
+		<item key="WizardProjectsImportPage.STORE_HIDE_CONFLICTING_PROJECTS_ID" value="false"/>
+		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value=""/>
+			<item value="C:\Workspaces\Workspace_Module\SMS"/>
+		</list>
+		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
+			<item value="C:\Users\happy\OneDrive\바탕 화면\email.zip"/>
+			<item value="C:\Users\happy\OneDrive\바탕 화면\4조 세미프로젝트 보고서\모듈화\모듈화.zip"/>
+			<item value="C:\Users\happy\OneDrive\바탕 화면\Recaptcha.zip"/>
+			<item value="C:\Users\happy\OneDrive\바탕 화면\SMS.zip"/>
+			<item value="C:\Users\happy\OneDrive\바탕 화면\payment.zip"/>
+			<item value="C:\Users\happy\OneDrive\바탕 화면\encryption.zip"/>
+			<item value="C:\Users\happy\OneDrive\바탕 화면\login,recommend.zip"/>
+			<item value="C:\Users\happy\OneDrive\바탕 화면\papago.zip"/>
+			<item value="C:\Users\happy\OneDrive\바탕 화면\paging.zip"/>
+		</list>
+	</section>
+</section>

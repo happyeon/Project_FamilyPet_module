@@ -1,0 +1,136 @@
+package com.sms;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.tomcat.util.codec.binary.Base64;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+// https://api.ncloud-docs.com/docs/ai-application-service-sens-smsv2#%EB%A9%94%EC%8B%9C%EC%A7%80%EB%B0%9C%EC%86%A1
+public class SMS {
+
+	public static void sendSMS(String phonenumber, String content) throws UnsupportedEncodingException {
+		String hostNameUrl = "https://sens.apigw.ntruss.com";				// 호스트 URL
+		String requestUrl = "/sms/v2/services/";							// 요청 URL
+		String requestUrlType = "/messages";								// 요청 URL
+		String accessKey = "MgnNQBLZWYDmVIWB9A86";							// 접근키(네이버 클라우드 플랫폼에서 받아옴)			
+		String secretKey = "bukxizrgBdgLY4Gs6qIynKtLnqOeLjfCrNoS9Lh5";		// 비밀키(네이버 클라우드 플랫폼에서 받아옴)
+		String serviceId = "ncp:sms:kr:266284043003:semiproject";			// 서비스id(네이버 클라우드 플랫폼에서 받아옴)
+		String timestamp = Long.toString(System.currentTimeMillis());		// 현재시간, 1970년 1월 1일부터 경과한 시간을 long 값으로 리턴, 1/1000초(밀리세컨) 값을 리턴
+		requestUrl += serviceId + requestUrlType;
+		String apiUrl = hostNameUrl + requestUrl;
+		
+		JsonObject bodyJson = new JsonObject();
+		JsonObject toJson = new JsonObject();
+		JsonArray Jsarr = new JsonArray();
+			    
+		// json 형식으로 메시지 전송 요청	
+		toJson.addProperty("subject", "test");			// 메시지 제목 (적용안됨/lms만 적용)
+		toJson.addProperty("content", content);  		// 메시지 내용	(실제내용) type별로 최대 byte 제한이 다르다.
+		toJson.addProperty("to", phonenumber);			// 수신번호
+		Jsarr.add(toJson);	
+		
+		bodyJson.addProperty("type", "SMS");			// 메시지 type sms/lms
+		bodyJson.addProperty("countryCode", "82");		// 국가 전화번호
+		bodyJson.addProperty("contentType", "COMM");	// 메시지 내용 type ad(광고용)/comm(일반용)
+		bodyJson.addProperty("from", "01064244977");	// 발신번호 (사전에 인증/등록된 번호만 사용가능)
+		bodyJson.addProperty("subject", "test");		// 메시지 제목(적용안됨/lms만 적용)
+		bodyJson.addProperty("content", "test2");		// 메시지 내용
+		bodyJson.add("messages", Jsarr);
+		
+		String body = bodyJson.toString();
+		
+		System.out.println(body);
+		System.out.println("----------------");
+		System.out.println(requestUrl);
+		System.out.println("----------------");
+		System.out.println(apiUrl);
+		System.out.println("----------------");
+		
+		try {	
+			URL url = new URL(apiUrl);
+			HttpURLConnection urlConnection = (HttpURLConnection)url.openConnection();   // url 연결 객체 생성
+			
+			urlConnection.setRequestMethod("POST");	  // post 방식 통신
+			
+			// API Header (필수:Content-Type, x-ncp-apigw-timestamp, x-ncp-iam-access-key, x-ncp-apigw-signature-v2)
+			urlConnection.setRequestProperty("Content-Type", "application/json");   //요청 Body Content Type을 application/json으로 지정 (POST)
+			urlConnection.setRequestProperty("x-ncp-apigw-timestamp", timestamp);	//1970년 1월 1일 00:00:00 협정 세계시(UTC)부터의 경과 시간을 밀리초(Millisecond)로 나타낸 것
+			urlConnection.setRequestProperty("x-ncp-iam-access-key", accessKey);	//	포탈 또는 Sub Account에서 발급받은 Access Key ID
+			// Access Key Id와 맵핑되는 SecretKey로 암호화한 서명. HMAC 암호화 알고리즘은 HmacSHA256 사용
+			urlConnection.setRequestProperty("x-ncp-apigw-signature-v2", makeSignature(requestUrl, timestamp, accessKey, secretKey));
+			
+			urlConnection.setDoInput(true); 	  // 읽기 모드 지정
+			urlConnection.setUseCaches(false);	  // 캐싱 데이터를 받을지 안받을지
+			urlConnection.setDoOutput(true);	  // 쓰기 모드 지정
+			DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
+			
+			wr.write(body.getBytes());  // 출력 스트림에 출력
+			wr.flush();					// 출력 스트림을 플러시(비운다)하고 버퍼링 된 모든 출력 바이트를 강제 실행
+			wr.close();					// 출력 스트림을 닫고 모든 시스템 자원을 해제
+			
+			int responseCode = urlConnection.getResponseCode();
+			BufferedReader br;
+			System.out.println("responseCode : " + " " + responseCode);
+			System.out.println("----------------");
+			System.out.println("responsemessage : " + urlConnection.getResponseMessage());
+			if(responseCode==202) { // 정상 호출
+				br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));	
+			} else { // 에러 발생
+				br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+			}
+			
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+			while((inputLine = br.readLine()) != null) {
+				response.append(inputLine);
+			}
+			br.close();
+			
+			System.out.println(response.toString());
+			
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
+	}
+	
+	// sens api 전용 시그니처 키 생성
+	// 요청에 맞게 StringToSign를 생성하고 SecretKey로 HmacSHA256 알고리즘으로 암호화한 후 Base64로 인코딩
+	public static String makeSignature(String url, String timestamp, String accessKey, String secretKey) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+		String space = " ";				
+		String newLine = "\n";	
+		String method = "POST"; 
+		
+		String message = new StringBuilder()
+			.append(method)		// method
+			.append(space)		// one space	
+			.append(url)		// url( include query string)
+			.append(newLine)	// new line
+			.append(timestamp)	// current timestamp(epoch)
+			.append(newLine)    // new line
+			.append(accessKey)  // access key id (from portal or sub account)
+			.toString();
+
+		SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256"); 
+		Mac mac = Mac.getInstance("HmacSHA256"); 
+		mac.init(signingKey); 
+		
+		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8")); 
+		String encodeBase64String = Base64.encodeBase64String(rawHmac);
+		
+	  return encodeBase64String;    // 이 값을 x-ncp-apigw-signature-v2로 사용
+	}
+	
+}

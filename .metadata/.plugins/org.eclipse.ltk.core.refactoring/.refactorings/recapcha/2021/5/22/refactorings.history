@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Move &apos;recapcha.jsp&apos; to &apos;WebContent&apos;" description="Move &apos;recapcha.jsp&apos; to &apos;WebContent&apos;" destination="WebContent" element1="/Recaptcha/WebContent/recapcha.jsp" flags="7" id="org.eclipse.ltk.core.refactoring.move.resources" resources="1" stamp="1621746861954" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;re/WebContent/recapcha.jsp&apos; to &apos;index.jsp&apos;" description="Rename resource &apos;recapcha.jsp&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="WebContent/recapcha.jsp" name="index.jsp" stamp="1621746925085" updateReferences="true"/>
+</session>

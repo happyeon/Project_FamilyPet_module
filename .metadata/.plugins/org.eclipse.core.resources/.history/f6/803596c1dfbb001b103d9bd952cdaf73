@@ -1,0 +1,24 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<title>reCAPTCHA demo: Simple page</title>
+     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+     <script>
+       function onSubmit(token) {
+         document.getElementById("demo-form").submit();
+       }
+     </script>
+</head>
+<body>
+
+	 <form id='demo-form' action="?" method="POST">
+      <button class="g-recaptcha" data-sitekey="6LdrcecaAAAAALxLwxw4XRXqvrBqNvpJvXrEwc-Y" data-callback='onSubmit'>Submit</button>
+      <br/>
+    </form>
+
+
+</body>
+</html>
